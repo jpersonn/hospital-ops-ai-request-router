@@ -96,7 +96,14 @@ def summary_by_status() -> dict[str, int]:
 
 
 def reset_db() -> None:
-    """Wipe the log -- handy for a clean demo run."""
-    if DB_PATH.exists():
-        DB_PATH.unlink()
-    init_db()
+    """Wipe the log -- handy for a clean demo run.
+
+    Deletes rows rather than unlinking the file. On Windows, SQLite can hold
+    a file handle open even after a `with` block exits, so deleting the file
+    itself raises PermissionError (WinError 32) while the app is running.
+    Clearing tables in place works cross-platform and avoids that entirely.
+    """
+    init_db()  # ensure tables exist first
+    with _connect() as conn:
+        conn.execute("DELETE FROM actions")
+        conn.execute("DELETE FROM requests")
