@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 
 from classifier import classify
 from config import CONFIDENCE_THRESHOLD, CLASSIFIER_MODEL
-from models import ProcessedRequest, Urgency
+from models import ActionRecord, ProcessedRequest, Urgency
 from samples import SAMPLE_REQUESTS
+from workflow import WorkflowContext, run_branch
 import storage
 
 load_dotenv()
@@ -119,30 +120,56 @@ with tab_process:
             st.write("**Extracted details:**", classification.entities)
 
         below = classification.confidence < CONFIDENCE_THRESHOLD
+
+        st.subheader("3 · Remediation")
+
         if below:
             st.warning(
                 "⚠️ Confidence is below the threshold — this request is diverted to "
                 "the **human review queue** instead of being auto-processed. "
                 "(Escalation override in action.)"
             )
+            actions = [
+                ActionRecord(
+                    "Divert to human review queue",
+                    "flagged",
+                    f"Classification confidence {classification.confidence:.0%} is "
+                    f"below the {CONFIDENCE_THRESHOLD:.0%} threshold. No automated "
+                    "remediation was run.",
+                )
+            ]
+            final_status = "needs_review"
+        else:
+            ctx = WorkflowContext(
+                raw_text=request_text.strip(),
+                classification=classification,
+                client=CLIENT,
+                use_mock=use_mock,
+            )
+            with st.spinner("Running remediation branch..."):
+                actions, final_status = run_branch(ctx)
 
-        st.subheader("3 · Remediation")
-        st.info(
-            "🚧 Branch-specific remediation workflows are added in Block 2. "
-            "Right now the request is classified and logged; next it will trigger "
-            "its type-specific multi-step workflow."
-        )
+        # --- Action summary: one line per step, artifacts in expanders ---
+        STATUS_ICON = {"done": "✅", "flagged": "🚩", "paused": "⏸️", "error": "❌"}
+        for i, a in enumerate(actions, start=1):
+            icon = STATUS_ICON.get(a.status, "•")
+            st.markdown(f"{icon} **Step {i} — {a.step_name}**  \n{a.detail}")
+            if a.artifact:
+                with st.expander(f"View generated output — {a.step_name}"):
+                    st.text(a.artifact)
 
-        # Persist (no actions yet in Block 1)
+        st.markdown(f"**Final status:** `{final_status}`")
+
+        # Persist the full record: classification + every action
         pr = ProcessedRequest(
             request_id=str(uuid.uuid4())[:8],
             raw_text=request_text.strip(),
             classification=classification,
-            actions=[],
-            final_status="needs_review" if below else "classified",
+            actions=actions,
+            final_status=final_status,
         )
         storage.save_request(pr)
-        st.success(f"Logged as request `{pr.request_id}`.")
+        st.success(f"Logged as request `{pr.request_id}` with {len(actions)} audit entries.")
 
     elif process:
         st.error("Please enter or select a request first.")
@@ -160,9 +187,17 @@ with tab_dashboard:
         by_status = storage.summary_by_status()
         m = st.columns(4)
         m[0].metric("Total", len(rows))
-        m[1].metric("Types seen", len(by_type))
-        m[2].metric("Needs review", by_status.get("needs_review", 0))
-        m[3].metric("Classified", by_status.get("classified", 0))
+        m[1].metric("Resolved", by_status.get("resolved", 0))
+        m[2].metric(
+            "Human review",
+            by_status.get("human_review", 0) + by_status.get("needs_review", 0),
+        )
+        m[3].metric(
+            "Routed / escalated",
+            by_status.get("routed", 0) + by_status.get("escalated", 0),
+        )
+        st.write("**Volumes by type:**")
+        st.bar_chart(by_type)
         st.dataframe(
             [
                 {
