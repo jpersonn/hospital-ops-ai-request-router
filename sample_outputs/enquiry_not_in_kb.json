@@ -1,0 +1,45 @@
+{
+  "request_id": "enquiry_not_in_kb",
+  "raw_text": "Hi, do you have interpreter services available for a Mandarin-speaking relative attending an outpatient clinic next month? How do I arrange one?",
+  "classification": {
+    "request_type": "General enquiry",
+    "urgency": "Low",
+    "confidence": 0.71,
+    "sub_topic": "information request",
+    "reasoning": "[mock classifier] keyword heuristic match.",
+    "entities": {}
+  },
+  "actions": [
+    {
+      "step_name": "Classify sub-topic",
+      "status": "done",
+      "detail": "Extracted details \u2014 none extracted.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.739536+00:00"
+    },
+    {
+      "step_name": "Draft KB-grounded reply",
+      "status": "done",
+      "detail": "Reply drafted \u2014 enquiry is NOT covered by the knowledge base, so the draft promises a handoff instead of guessing.",
+      "artifact": "Thanks for getting in touch. This isn't something I can answer from our standard information, so I've passed your question to our information desk \u2014 they'll come back to you directly. [mock draft]",
+      "timestamp": "2026-07-12T14:57:03.739536+00:00"
+    },
+    {
+      "step_name": "Resolve or route",
+      "status": "flagged",
+      "detail": "Enquiry not answerable from KB \u2014 routed to Front-of-House / Info Desk for a human response, with a follow-up flag set. Case left open.",
+      "artifact": "[ROUTING NOTICE \u2192 Front-of-House / Info Desk]\nEnquiry could not be answered from the knowledge base.\nSub-topic: information request\nA holding reply has been sent; human response required.",
+      "timestamp": "2026-07-12T14:57:03.739536+00:00"
+    },
+    {
+      "step_name": "Log case",
+      "status": "done",
+      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'information request'.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.739536+00:00"
+    }
+  ],
+  "final_status": "routed",
+  "created_at": "2026-07-12T14:57:03.739536+00:00",
+  "mode": "mock"
+}

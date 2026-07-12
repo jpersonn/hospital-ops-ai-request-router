@@ -83,7 +83,7 @@ def draft_kb_reply(text: str, c: Classification, client) -> tuple[str, bool]:
     answered or punted is a workflow-routing decision, so it must come back as
     a machine-readable boolean -- not as prose we'd have to keyword-sniff.
     """
-    kb = KB_PATH.read_text()
+    kb = KB_PATH.read_text(encoding="utf-8")
     resp = client.messages.create(
         model=GENERATION_MODEL,
         max_tokens=700,

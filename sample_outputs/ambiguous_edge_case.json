@@ -1,0 +1,24 @@
+{
+  "request_id": "ambiguous_edge_case",
+  "raw_text": "Following up again about the thing from the other day. Still not sorted and it's becoming a problem for us. Please advise.",
+  "classification": {
+    "request_type": "General enquiry",
+    "urgency": "Low",
+    "confidence": 0.42,
+    "sub_topic": "unclear",
+    "reasoning": "[mock classifier] keyword heuristic match.",
+    "entities": {}
+  },
+  "actions": [
+    {
+      "step_name": "Divert to human review queue",
+      "status": "flagged",
+      "detail": "Classification confidence 42% is below the 60% threshold. No automated remediation was run.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.740541+00:00"
+    }
+  ],
+  "final_status": "needs_review",
+  "created_at": "2026-07-12T14:57:03.740541+00:00",
+  "mode": "mock"
+}

@@ -1,8 +1,8 @@
 """Hospital Operations Request Router -- Streamlit UI.
 
-Block 1 scope: intake -> AI classification -> human-review flag -> audit log.
-The remediation engine (branch-specific workflows) is added in Block 2; its
-section below is a clearly-marked stub so the app runs end-to-end today.
+End-to-end flow: intake -> AI classification (type + urgency) -> policy
+override + confidence gate -> branch-specific remediation -> audit log,
+plus a dashboard tab summarising volumes and statuses.
 """
 
 from __future__ import annotations
@@ -106,7 +106,14 @@ with tab_process:
         )
     elif process and request_text.strip():
         with st.spinner("Classifying..."):
-            classification = classify(request_text, client=CLIENT, use_mock=use_mock)
+            try:
+                classification = classify(request_text, client=CLIENT, use_mock=use_mock)
+            except Exception as exc:  # noqa: BLE001 -- API/network failures must not stack-trace
+                st.error(
+                    f"Classification call failed ({type(exc).__name__}). Nothing was "
+                    "processed or logged — try again, or switch to mock mode in the sidebar."
+                )
+                st.stop()
 
         override_note = apply_policy_overrides(classification)
 

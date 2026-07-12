@@ -1,0 +1,45 @@
+{
+  "request_id": "general_enquiry",
+  "raw_text": "Hello, could you please tell me what the visiting hours are for the maternity ward, and whether there is paid parking available on site? Trying to plan a visit this weekend.",
+  "classification": {
+    "request_type": "General enquiry",
+    "urgency": "Low",
+    "confidence": 0.71,
+    "sub_topic": "information request",
+    "reasoning": "[mock classifier] keyword heuristic match.",
+    "entities": {}
+  },
+  "actions": [
+    {
+      "step_name": "Classify sub-topic",
+      "status": "done",
+      "detail": "Extracted details \u2014 none extracted.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.738396+00:00"
+    },
+    {
+      "step_name": "Draft KB-grounded reply",
+      "status": "done",
+      "detail": "Reply drafted, fully grounded in the operations knowledge base.",
+      "artifact": "Thanks for getting in touch. Maternity ward visiting hours are 10:00am-1:00pm and 4:00pm-8:00pm daily. Paid parking is available in the multi-storey car park on Hospital Drive ($4/hour, $18 daily max), with a free 15-minute pick-up zone at the main entrance. [mock draft]",
+      "timestamp": "2026-07-12T14:57:03.738396+00:00"
+    },
+    {
+      "step_name": "Resolve or route",
+      "status": "done",
+      "detail": "Marked resolved \u2014 reply sent, no follow-up required.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.738396+00:00"
+    },
+    {
+      "step_name": "Log case",
+      "status": "done",
+      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'information request'.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.738396+00:00"
+    }
+  ],
+  "final_status": "resolved",
+  "created_at": "2026-07-12T14:57:03.738396+00:00",
+  "mode": "mock"
+}

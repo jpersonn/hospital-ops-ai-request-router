@@ -1,0 +1,45 @@
+{
+  "request_id": "facility_evs_request",
+  "raw_text": "Hi, this is Ward 3B. There's been a fluid spill in the bay 4 bathroom and it needs a cleanup before the next patient is moved in. Could someone from environmental services come up when they get a chance? Thanks.",
+  "classification": {
+    "request_type": "Facility / EVS request",
+    "urgency": "Medium",
+    "confidence": 0.74,
+    "sub_topic": "facilities task",
+    "reasoning": "[mock classifier] keyword heuristic match.",
+    "entities": {}
+  },
+  "actions": [
+    {
+      "step_name": "Extract details",
+      "status": "done",
+      "detail": "Extracted details \u2014 none extracted.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+    },
+    {
+      "step_name": "Route to department",
+      "status": "done",
+      "detail": "Routed to Facilities & Environmental Services.",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+    },
+    {
+      "step_name": "Draft confirmation",
+      "status": "done",
+      "detail": "Confirmation message drafted for the requester.",
+      "artifact": "Your service request for the reported location has been logged and routed to our Facilities & Environmental Services team, who will attend within the standard service window. Reference details are in your case log entry. [mock draft]",
+      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+    },
+    {
+      "step_name": "Set SLA timer",
+      "status": "done",
+      "detail": "SLA timer set: 8 h (due 22:57 UTC).",
+      "artifact": null,
+      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+    }
+  ],
+  "final_status": "routed",
+  "created_at": "2026-07-12T14:57:03.737396+00:00",
+  "mode": "mock"
+}
