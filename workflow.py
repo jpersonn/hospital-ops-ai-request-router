@@ -113,10 +113,39 @@ def draft_complaint_ack(ctx: WorkflowContext):
 
 def draft_kb_reply(ctx: WorkflowContext):
     if ctx.use_mock or ctx.client is None:
-        text = generation.mock_kb_reply(ctx.raw_text, ctx.classification)
+        text, answered = generation.mock_kb_reply(ctx.raw_text, ctx.classification)
     else:
-        text = generation.draft_kb_reply(ctx.raw_text, ctx.classification, ctx.client)
-    return ("done", "Reply drafted, grounded in the operations knowledge base.", text)
+        text, answered = generation.draft_kb_reply(ctx.raw_text, ctx.classification, ctx.client)
+    ctx.shared["kb_answered"] = answered
+    detail = (
+        "Reply drafted, fully grounded in the operations knowledge base."
+        if answered
+        else "Reply drafted — enquiry is NOT covered by the knowledge base, so the "
+             "draft promises a handoff instead of guessing."
+    )
+    return ("done", detail, text)
+
+
+def resolve_or_route(ctx: WorkflowContext):
+    """Conditional step: the branch's path depends on whether the KB answered.
+
+    This keeps the system honest -- the case status always matches what the
+    drafted reply promised the enquirer.
+    """
+    if ctx.shared.get("kb_answered", False):
+        ctx.shared["final_status"] = "resolved"
+        return ("done", "Marked resolved — reply sent, no follow-up required.", None)
+    team = ROUTING_TABLE[RequestType.GENERAL_ENQUIRY.value]
+    ctx.shared["final_status"] = "routed"
+    return (
+        "flagged",
+        f"Enquiry not answerable from KB — routed to {team} for a human response, "
+        "with a follow-up flag set. Case left open.",
+        f"[ROUTING NOTICE → {team}]\n"
+        f"Enquiry could not be answered from the knowledge base.\n"
+        f"Sub-topic: {ctx.classification.sub_topic}\n"
+        f"A holding reply has been sent; human response required.",
+    )
 
 
 def draft_service_confirmation(ctx: WorkflowContext):
@@ -198,7 +227,7 @@ BRANCHES: dict[RequestType, list[Step]] = {
     RequestType.GENERAL_ENQUIRY: [
         Step("Classify sub-topic", extract_details),
         Step("Draft KB-grounded reply", draft_kb_reply),
-        Step("Mark resolved", mark_resolved),
+        Step("Resolve or route", resolve_or_route),
         Step("Log case", log_with_priority),
     ],
     RequestType.URGENT_SAFETY: [

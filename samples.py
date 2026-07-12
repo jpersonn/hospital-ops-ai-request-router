@@ -23,6 +23,10 @@ SAMPLE_REQUESTS = {
         "maternity ward, and whether there is paid parking available on site? "
         "Trying to plan a visit this weekend."
     ),
+    "Enquiry (not in KB)": (
+        "Hi, do you have interpreter services available for a Mandarin-speaking "
+        "relative attending an outpatient clinic next month? How do I arrange one?"
+    ),
     "Urgent safety escalation": (
         "URGENT - an elderly patient has fallen in the corridor outside radiology "
         "on level 2 and there's a broken glass hazard near them. We need someone "
