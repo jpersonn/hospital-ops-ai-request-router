@@ -13,6 +13,7 @@ pipeline is identical whether or not an API key is present. This lets you
 from __future__ import annotations
 
 import json
+import re
 
 from config import CLASSIFIER_MODEL
 from models import Classification, RequestType, Urgency
@@ -140,6 +141,20 @@ _ENQUIRY_WORDS = ["what", "when", "how do i", "where", "hours", "parking",
 _INJECTION_MARKERS = ["ignore all previous instructions", "ignore previous instructions",
                       "system prompt", "admin mode", "you are now", "disregard your"]
 
+# The live classifier extracts entities via the tool schema; the mock needs a
+# minimal equivalent, or every entity-gated branch is unreachable in mock mode.
+# Deliberately conservative -- only matches unambiguous references, so an
+# under-specified request still fails the actionability gate honestly.
+_LOCATION_RE = re.compile(
+    r"\b(?:ward|bay|room|bed|level|floor)\s+\w*\d\w*"   # "ward 3B", "level 2"
+    r"|\bcorridor(?:\s+outside\s+\w+)?",                 # "corridor outside radiology"
+    re.IGNORECASE,
+)
+_CONTACT_RE = re.compile(
+    r"[\w.+-]+@[\w-]+\.[\w.]+"          # email
+    r"|\+?\d[\d\s\-()]{7,}\d",          # phone number
+)
+
 
 def classify_mock(text: str) -> Classification:
     """Deterministic keyword heuristic used when no API key is set."""
@@ -175,13 +190,22 @@ def classify_mock(text: str) -> Classification:
                                 "unclear")
 
     suspicious = any(m in low for m in _INJECTION_MARKERS)
+
+    entities = {}
+    locations = _LOCATION_RE.findall(text)
+    if locations:
+        entities["location"] = ", ".join(m.strip() for m in locations)
+    contact = _CONTACT_RE.search(text)
+    if contact:
+        entities["contact"] = contact.group().strip()
+
     return Classification(
         request_type=rt,
         urgency=urg,
         confidence=conf,
         sub_topic="prompt injection attempt" if suspicious else topic,
         reasoning="[mock classifier] keyword heuristic match.",
-        entities={},
+        entities=entities,
         out_of_scope=suspicious,
     )
 
