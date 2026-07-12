@@ -33,6 +33,7 @@ def init_db() -> None:
                 urgency      TEXT,
                 confidence   REAL,
                 sub_topic    TEXT,
+                reasoning    TEXT,
                 final_status TEXT,
                 created_at   TEXT
             );
@@ -48,6 +49,14 @@ def init_db() -> None:
             );
             """
         )
+        # Lightweight migration: databases created before the reasoning column
+        # existed get it added in place. SQLite has no ADD COLUMN IF NOT EXISTS,
+        # so the duplicate-column error on already-migrated DBs is expected.
+        try:
+            conn.execute("ALTER TABLE requests ADD COLUMN reasoning TEXT")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column" not in str(exc).lower():
+                raise
 
 
 def save_request(pr: ProcessedRequest) -> None:
@@ -56,10 +65,10 @@ def save_request(pr: ProcessedRequest) -> None:
         conn.execute(
             """INSERT OR REPLACE INTO requests
                (request_id, raw_text, request_type, urgency, confidence,
-                sub_topic, final_status, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                sub_topic, reasoning, final_status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (pr.request_id, pr.raw_text, c.request_type.value, c.urgency.value,
-             c.confidence, c.sub_topic, pr.final_status, pr.created_at),
+             c.confidence, c.sub_topic, c.reasoning, pr.final_status, pr.created_at),
         )
         conn.execute("DELETE FROM actions WHERE request_id = ?", (pr.request_id,))
         for a in pr.actions:
@@ -75,6 +84,16 @@ def all_requests() -> list[dict]:
     with _connect() as conn:
         rows = conn.execute(
             "SELECT * FROM requests ORDER BY created_at DESC"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_actions_for(request_id: str) -> list[dict]:
+    """Ordered audit-trail rows (one per remediation step) for one request."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM actions WHERE request_id = ? ORDER BY id",
+            (request_id,),
         ).fetchall()
         return [dict(r) for r in rows]
 

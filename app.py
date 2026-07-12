@@ -45,6 +45,9 @@ URGENCY_COLOUR = {
     Urgency.CRITICAL: "#A32D2D",
 }
 
+# Shared by the Process tab's action summary and the Dashboard audit trail.
+STATUS_ICON = {"done": "✅", "flagged": "🚩", "paused": "⏸️", "error": "❌"}
+
 # --- Sidebar ----------------------------------------------------------------
 with st.sidebar:
     st.header("Controls")
@@ -189,7 +192,6 @@ with tab_process:
                 ))
 
         # --- Action summary: one line per step, artifacts in expanders ---
-        STATUS_ICON = {"done": "✅", "flagged": "🚩", "paused": "⏸️", "error": "❌"}
         for i, a in enumerate(actions, start=1):
             icon = STATUS_ICON.get(a.status, "•")
             st.markdown(f"{icon} **Step {i} — {a.step_name}**  \n{a.detail}")
@@ -237,18 +239,21 @@ with tab_dashboard:
         )
         st.write("**Volumes by type:**")
         st.bar_chart(by_type)
-        st.dataframe(
-            [
-                {
-                    "id": r["request_id"],
-                    "type": r["request_type"],
-                    "urgency": r["urgency"],
-                    "confidence": f'{r["confidence"]:.0%}',
-                    "status": r["final_status"],
-                    "created": r["created_at"][:19].replace("T", " "),
-                }
-                for r in rows
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
+        st.write("**Request log — expand a row to see its full audit trail:**")
+        for r in rows:
+            header = (
+                f"{r['request_id']} — {r['request_type']} · "
+                f"{r['urgency']} · {r['final_status']}"
+            )
+            with st.expander(header):
+                if r["reasoning"]:
+                    st.write(f"**Classifier reasoning:** {r['reasoning']}")
+                st.write("**Raw request:**")
+                st.text(r["raw_text"])
+                st.write("**Actions taken:**")
+                for i, a in enumerate(storage.get_actions_for(r["request_id"]), start=1):
+                    icon = STATUS_ICON.get(a["status"], "•")
+                    st.markdown(f"{icon} **Step {i} — {a['step_name']}**  \n{a['detail']}")
+                    if a["artifact"]:
+                        with st.expander(f"View generated output — {a['step_name']}"):
+                            st.text(a["artifact"])
