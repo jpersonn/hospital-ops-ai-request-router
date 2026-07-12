@@ -291,6 +291,32 @@ def apply_policy_overrides(c: Classification) -> str | None:
     return None
 
 
+# Entity keys a branch must have before it may run automatically. A request
+# can be confidently classified and still be un-actionable: a facilities job
+# with no location cannot be attended; a complaint with no contact cannot be
+# followed up. Enquiries need nothing -- an info question answers itself.
+REQUIRED_ENTITIES: dict[RequestType, list[str]] = {
+    RequestType.FACILITY_EVS: ["location"],
+    RequestType.PATIENT_COMPLAINT: ["contact"],
+    RequestType.URGENT_SAFETY: ["location"],
+    RequestType.GENERAL_ENQUIRY: [],
+}
+
+
+def check_actionability(c: Classification) -> list[str]:
+    """Return the entity keys the classified branch requires but doesn't have.
+
+    An entity is missing if the key is absent or its value is empty/whitespace.
+    An empty return value means the branch is clear to run.
+    """
+    missing = []
+    for key in REQUIRED_ENTITIES[c.request_type]:
+        value = c.entities.get(key)
+        if value is None or not str(value).strip():
+            missing.append(key)
+    return missing
+
+
 def run_branch(ctx: WorkflowContext) -> tuple[list[ActionRecord], str]:
     """Execute the branch for the classified type. Returns (actions, final_status).
 

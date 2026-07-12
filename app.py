@@ -17,7 +17,12 @@ from classifier import classify
 from config import CONFIDENCE_THRESHOLD, CLASSIFIER_MODEL
 from models import ActionRecord, ProcessedRequest, Urgency
 from samples import SAMPLE_REQUESTS
-from workflow import WorkflowContext, apply_policy_overrides, run_branch
+from workflow import (
+    WorkflowContext,
+    apply_policy_overrides,
+    check_actionability,
+    run_branch,
+)
 import storage
 
 load_dotenv()
@@ -139,6 +144,7 @@ with tab_process:
             st.write("**Extracted details:**", classification.entities)
 
         below = classification.confidence < CONFIDENCE_THRESHOLD
+        missing = check_actionability(classification)
 
         st.subheader("3 · Remediation")
 
@@ -161,6 +167,25 @@ with tab_process:
                 )
             ]
             final_status = "needs_review"
+        elif missing:
+            miss_str = ", ".join(missing)
+            st.warning(
+                f"⚠️ Classified as {classification.request_type.value}, but the "
+                f"request is missing: **{miss_str}**. Diverted to human review — "
+                "an operator needs to obtain this information before automation "
+                "can proceed."
+            )
+            actions = [
+                ActionRecord(
+                    "Actionability check",
+                    "flagged",
+                    f"Classified as {classification.request_type.value} "
+                    f"({classification.urgency.value}), but required details are "
+                    f"missing: {miss_str}. No automated remediation was run — an "
+                    "operator must obtain the missing information first.",
+                )
+            ]
+            final_status = "needs_info"
         elif below:
             st.warning(
                 "⚠️ Confidence is below the threshold — this request is diverted to "
@@ -231,7 +256,9 @@ with tab_dashboard:
         m[1].metric("Resolved", by_status.get("resolved", 0))
         m[2].metric(
             "Human review",
-            by_status.get("human_review", 0) + by_status.get("needs_review", 0),
+            by_status.get("human_review", 0)
+            + by_status.get("needs_review", 0)
+            + by_status.get("needs_info", 0),
         )
         m[3].metric(
             "Routed / escalated",

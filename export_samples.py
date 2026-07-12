@@ -27,7 +27,12 @@ from classifier import classify
 from config import CONFIDENCE_THRESHOLD
 from models import ActionRecord, ProcessedRequest
 from samples import SAMPLE_REQUESTS
-from workflow import WorkflowContext, apply_policy_overrides, run_branch
+from workflow import (
+    WorkflowContext,
+    apply_policy_overrides,
+    check_actionability,
+    run_branch,
+)
 
 OUT_DIR = Path(__file__).parent / "sample_outputs"
 
@@ -52,6 +57,18 @@ def process_one(label: str, text: str, client, use_mock: bool) -> ProcessedReque
             )
         ]
         final_status = "needs_review"
+    elif (missing := check_actionability(classification)):
+        actions = [
+            ActionRecord(
+                "Actionability check",
+                "flagged",
+                f"Classified as {classification.request_type.value} "
+                f"({classification.urgency.value}), but required details are "
+                f"missing: {', '.join(missing)}. No automated remediation was "
+                "run — an operator must obtain the missing information first.",
+            )
+        ]
+        final_status = "needs_info"
     elif classification.confidence < CONFIDENCE_THRESHOLD:
         actions = [
             ActionRecord(
