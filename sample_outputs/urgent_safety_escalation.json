@@ -4,10 +4,15 @@
   "classification": {
     "request_type": "Urgent safety escalation",
     "urgency": "Critical",
-    "confidence": 0.83,
-    "sub_topic": "safety hazard",
-    "reasoning": "[mock classifier] keyword heuristic match.",
-    "entities": {}
+    "confidence": 0.99,
+    "sub_topic": "Patient fall with hazard",
+    "reasoning": "Immediate physical safety risk: elderly patient has fallen and broken glass hazard is present near them, requiring urgent emergency response.",
+    "entities": {
+      "location": "Corridor outside radiology, Level 2",
+      "requester": "<UNKNOWN>",
+      "contact": "<UNKNOWN>"
+    },
+    "out_of_scope": false
   },
   "actions": [
     {
@@ -15,31 +20,31 @@
       "status": "flagged",
       "detail": "Immediately flagged for human review \u2014 this request will NOT be auto-resolved.",
       "artifact": null,
-      "timestamp": "2026-07-12T14:57:03.739536+00:00"
+      "timestamp": "2026-07-12T15:05:30.193824+00:00"
     },
     {
       "step_name": "Draft holding acknowledgement",
       "status": "done",
       "detail": "Holding acknowledgement drafted (human is taking over).",
-      "artifact": "Your urgent report has been received and the on-call duty supervisor has been alerted immediately. A staff member is being dispatched now. [mock draft]",
-      "timestamp": "2026-07-12T14:57:03.740541+00:00"
+      "artifact": "Thank you for reporting this immediately \u2014 we have received your alert and a duty supervisor has been notified right now and is responding to Level 2 outside Radiology as a priority. Please do not attempt to manage the situation alone; help is on the way.",
+      "timestamp": "2026-07-12T15:05:32.610072+00:00"
     },
     {
       "step_name": "Notify duty supervisor",
       "status": "flagged",
       "detail": "Duty supervisor notified (on-call).",
-      "artifact": "[SUPERVISOR ALERT \u2014 CRITICAL]\nLocation: location in report\nReport: URGENT - an elderly patient has fallen in the corridor outside radiology on level 2 and there's a broken glass hazard near them. We need someone here immediately.\nAction: immediate human attendance required.",
-      "timestamp": "2026-07-12T14:57:03.740541+00:00"
+      "artifact": "[SUPERVISOR ALERT \u2014 CRITICAL]\nLocation: Corridor outside radiology, Level 2\nReport: URGENT - an elderly patient has fallen in the corridor outside radiology on level 2 and there's a broken glass hazard near them. We need someone here immediately.\nAction: immediate human attendance required.",
+      "timestamp": "2026-07-12T15:05:32.610072+00:00"
     },
     {
       "step_name": "Pause auto-resolution",
       "status": "paused",
       "detail": "Auto-resolution paused \u2014 no further automated replies will be sent on this case.",
       "artifact": null,
-      "timestamp": "2026-07-12T14:57:03.740541+00:00"
+      "timestamp": "2026-07-12T15:05:32.610072+00:00"
     }
   ],
   "final_status": "human_review",
-  "created_at": "2026-07-12T14:57:03.740541+00:00",
-  "mode": "mock"
+  "created_at": "2026-07-12T15:05:32.610072+00:00",
+  "mode": "live"
 }

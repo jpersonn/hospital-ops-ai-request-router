@@ -45,6 +45,10 @@ class Classification:
     sub_topic: str             # e.g. "parking", "spill cleanup", "billing"
     reasoning: str             # one-line justification, useful in the audit trail
     entities: dict = field(default_factory=dict)  # extracted location, requester, etc.
+    # True when the message is not a genuine ops request (prompt injection,
+    # spam, manipulation). Separate from confidence: the model can be VERY
+    # confident a message is illegitimate -- legitimacy is its own signal.
+    out_of_scope: bool = False
 
     def to_dict(self) -> dict:
         d = asdict(self)

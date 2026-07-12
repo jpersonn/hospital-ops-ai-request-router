@@ -4,42 +4,47 @@
   "classification": {
     "request_type": "Patient experience complaint",
     "urgency": "High",
-    "confidence": 0.78,
-    "sub_topic": "service complaint",
-    "reasoning": "[mock classifier] keyword heuristic match.",
-    "entities": {}
+    "confidence": 0.95,
+    "sub_topic": "Emergency department wait time, cleanliness, and staff communication",
+    "reasoning": "This is a multi-faceted patient experience complaint involving wait times, facilities cleanliness, and staff communication during a past emergency department visit, requiring formal follow-up and investigation.",
+    "entities": {
+      "requester": "<UNKNOWN>",
+      "location": "Emergency Department",
+      "contact": "<UNKNOWN>"
+    },
+    "out_of_scope": false
   },
   "actions": [
     {
       "step_name": "Draft acknowledgement",
       "status": "done",
       "detail": "Empathetic acknowledgement drafted for the complainant.",
-      "artifact": "Thank you for taking the time to share this with us, and we are sorry your experience fell short of what you should expect from us. Your complaint has been escalated to our Patient Liaison Office as a priority, and a member of the team will contact you within 2 hours. [mock draft]",
-      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+      "artifact": "Thank you for taking the time to write to us, and please know we are truly sorry to hear about the difficulties your father and your family experienced during his recent visit. A five-hour wait without any updates, concerns about the cleanliness of the environment, and feeling dismissed when you had questions \u2014 none of that reflects the standard of care and communication we want every patient and family to receive. We completely understand your frustration, and we are grateful you brought this to our attention.\n\nYour complaint has been escalated to our Patient Liaison Office, and a member of that team will be in touch with you directly within the next two hours to discuss your concerns and ensure you receive a proper follow-up.\n\nThank you again for speaking up. Your feedback genuinely matters to us.",
+      "timestamp": "2026-07-12T15:05:16.353318+00:00"
     },
     {
       "step_name": "Escalate to senior handler",
       "status": "flagged",
       "detail": "Escalated to Patient Liaison Office senior handler \u2014 notification issued.",
-      "artifact": "[ESCALATION NOTICE \u2192 Patient Liaison Office]\nPriority: High\nSub-topic: service complaint\nSummary: [mock classifier] keyword heuristic match.",
-      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+      "artifact": "[ESCALATION NOTICE \u2192 Patient Liaison Office]\nPriority: High\nSub-topic: Emergency department wait time, cleanliness, and staff communication\nSummary: This is a multi-faceted patient experience complaint involving wait times, facilities cleanliness, and staff communication during a past emergency department visit, requiring formal follow-up and investigation.",
+      "timestamp": "2026-07-12T15:05:16.353318+00:00"
     },
     {
       "step_name": "Log with priority flag",
       "status": "done",
-      "detail": "Case logged with priority flag \u2014 urgency High, sub-topic 'service complaint'.",
+      "detail": "Case logged with priority flag \u2014 urgency High, sub-topic 'Emergency department wait time, cleanliness, and staff communication'.",
       "artifact": null,
-      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+      "timestamp": "2026-07-12T15:05:16.353318+00:00"
     },
     {
       "step_name": "Set follow-up reminder",
       "status": "done",
-      "detail": "Follow-up reminder set: 2 h (due 16:57 UTC).",
+      "detail": "Follow-up reminder set: 2 h (due 17:05 UTC).",
       "artifact": null,
-      "timestamp": "2026-07-12T14:57:03.737396+00:00"
+      "timestamp": "2026-07-12T15:05:16.353318+00:00"
     }
   ],
   "final_status": "escalated",
-  "created_at": "2026-07-12T14:57:03.737396+00:00",
-  "mode": "mock"
+  "created_at": "2026-07-12T15:05:16.353318+00:00",
+  "mode": "live"
 }

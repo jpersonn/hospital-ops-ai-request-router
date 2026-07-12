@@ -41,7 +41,18 @@ def process_one(label: str, text: str, client, use_mock: bool) -> ProcessedReque
     classification = classify(text, client=client, use_mock=use_mock)
     override_note = apply_policy_overrides(classification)
 
-    if classification.confidence < CONFIDENCE_THRESHOLD:
+    if classification.out_of_scope:
+        actions = [
+            ActionRecord(
+                "Quarantine for human review",
+                "flagged",
+                "Classifier flagged this message as out of scope (possible "
+                "prompt injection or spam). No automated remediation was run "
+                "and no reply was sent.",
+            )
+        ]
+        final_status = "needs_review"
+    elif classification.confidence < CONFIDENCE_THRESHOLD:
         actions = [
             ActionRecord(
                 "Divert to human review queue",

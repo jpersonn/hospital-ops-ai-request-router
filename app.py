@@ -142,7 +142,23 @@ with tab_process:
         if override_note:
             st.info(f"🛡️ {override_note}")
 
-        if below:
+        if classification.out_of_scope:
+            st.warning(
+                "🛑 The classifier flagged this as **not a genuine operations "
+                "request** (possible prompt injection or spam). It is quarantined "
+                "for human review — no automated reply was generated or sent."
+            )
+            actions = [
+                ActionRecord(
+                    "Quarantine for human review",
+                    "flagged",
+                    "Classifier flagged this message as out of scope (possible "
+                    "prompt injection or spam). No automated remediation was run "
+                    "and no reply was sent.",
+                )
+            ]
+            final_status = "needs_review"
+        elif below:
             st.warning(
                 "⚠️ Confidence is below the threshold — this request is diverted to "
                 "the **human review queue** instead of being auto-processed. "
