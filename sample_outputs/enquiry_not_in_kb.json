@@ -4,9 +4,9 @@
   "classification": {
     "request_type": "General enquiry",
     "urgency": "Low",
-    "confidence": 0.85,
-    "sub_topic": "Interpreter services",
-    "reasoning": "This is a straightforward informational question about the availability of language interpretation services and how to request them for a future appointment.",
+    "confidence": 0.95,
+    "sub_topic": "Interpreter services / language support",
+    "reasoning": "This is a straightforward informational question about hospital services (interpreter availability and booking) for a future outpatient appointment, with no safety risk or patient dissatisfaction involved.",
     "entities": {},
     "out_of_scope": false
   },
@@ -16,31 +16,31 @@
       "status": "done",
       "detail": "Extracted details \u2014 none extracted.",
       "artifact": null,
-      "timestamp": "2026-07-12T15:05:24.030030+00:00"
+      "timestamp": "2026-07-12T16:08:32.326451+00:00"
     },
     {
       "step_name": "Draft KB-grounded reply",
       "status": "done",
       "detail": "Reply drafted \u2014 enquiry is NOT covered by the knowledge base, so the draft promises a handoff instead of guessing.",
-      "artifact": "Thank you for getting in touch. Unfortunately, information about interpreter services is not something I'm able to confirm from our current resources, so I'll pass your query to our information desk and someone will be in touch with you shortly.\n\nWhat I can share is that for outpatient clinic appointments generally, you're welcome to contact the Outpatients office directly on (03) 5550 0000 (weekdays, 8:30am \u2013 5:00pm) \u2014 they may also be able to assist with your interpreter query or point you in the right direction.",
-      "timestamp": "2026-07-12T15:05:28.300821+00:00"
+      "artifact": "Thank you for getting in touch. We want to make sure your relative's visit goes smoothly.\n\nUnfortunately, we don't have information about interpreter services in our current knowledge base, so this part of your enquiry will be passed to our information desk for a fuller answer.\n\nWhat we can share is that for outpatient clinic appointments generally, you're welcome to contact the Outpatients office directly \u2014 they may also be able to point you in the right direction:\n\n\ud83d\udcde (03) 5550 0000, weekdays 8:30am \u2013 5:00pm\n\nSomeone from our team will follow up with you shortly regarding interpreter arrangements.",
+      "timestamp": "2026-07-12T16:08:36.817572+00:00"
     },
     {
       "step_name": "Resolve or route",
       "status": "flagged",
       "detail": "Enquiry not answerable from KB \u2014 routed to Front-of-House / Info Desk for a human response, with a follow-up flag set. Case left open.",
-      "artifact": "[ROUTING NOTICE \u2192 Front-of-House / Info Desk]\nEnquiry could not be answered from the knowledge base.\nSub-topic: Interpreter services\nA holding reply has been sent; human response required.",
-      "timestamp": "2026-07-12T15:05:28.300821+00:00"
+      "artifact": "[ROUTING NOTICE \u2192 Front-of-House / Info Desk]\nEnquiry could not be answered from the knowledge base.\nSub-topic: Interpreter services / language support\nA holding reply has been sent; human response required.",
+      "timestamp": "2026-07-12T16:08:36.817572+00:00"
     },
     {
       "step_name": "Log case",
       "status": "done",
-      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'Interpreter services'.",
+      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'Interpreter services / language support'.",
       "artifact": null,
-      "timestamp": "2026-07-12T15:05:28.300821+00:00"
+      "timestamp": "2026-07-12T16:08:36.817572+00:00"
     }
   ],
   "final_status": "routed",
-  "created_at": "2026-07-12T15:05:28.300821+00:00",
+  "created_at": "2026-07-12T16:08:36.817572+00:00",
   "mode": "live"
 }

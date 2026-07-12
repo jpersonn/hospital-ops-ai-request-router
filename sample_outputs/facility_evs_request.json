@@ -5,8 +5,8 @@
     "request_type": "Facility / EVS request",
     "urgency": "Medium",
     "confidence": 0.95,
-    "sub_topic": "Spill cleanup",
-    "reasoning": "This is a straightforward environmental services request for spill cleanup in a patient-care area with a defined timeline (before next patient admission), making it a standard medium-urgency facility task with an implied SLA.",
+    "sub_topic": "spill cleanup",
+    "reasoning": "A fluid spill in a patient bathroom requires environmental services cleanup before room reuse\u2014a routine facility task with a standard service-level agreement, but not an immediate safety hazard if the area is isolated.",
     "entities": {
       "location": "Ward 3B, Bay 4 bathroom",
       "requester": "Ward 3B staff"
@@ -19,31 +19,31 @@
       "status": "done",
       "detail": "Extracted details \u2014 location: Ward 3B, Bay 4 bathroom, requester: Ward 3B staff.",
       "artifact": null,
-      "timestamp": "2026-07-12T15:05:05.472456+00:00"
+      "timestamp": "2026-07-12T16:08:08.502930+00:00"
     },
     {
       "step_name": "Route to department",
       "status": "done",
-      "detail": "Routed to Facilities & Environmental Services.",
-      "artifact": null,
-      "timestamp": "2026-07-12T15:05:05.472456+00:00"
+      "detail": "Routed to Facilities & Environmental Services \u2014 work order issued.",
+      "artifact": "[WORK ORDER \u2192 Facilities & Environmental Services]\nType: Facility / EVS request\nUrgency: Medium\nSub-topic: spill cleanup\nLocation: Ward 3B, Bay 4 bathroom\nRequester: Ward 3B staff (contact: not specified)\nSLA: 8 h (due 00:08 UTC)\n---\nHi, this is Ward 3B. There's been a fluid spill in the bay 4 bathroom and it needs a cleanup before the next patient is moved in. Could someone from environmental services come up when they get a chance? Thanks.",
+      "timestamp": "2026-07-12T16:08:08.502930+00:00"
     },
     {
       "step_name": "Draft confirmation",
       "status": "done",
       "detail": "Confirmation message drafted for the requester.",
-      "artifact": "Thank you for reaching out. We have logged a service request for a fluid spill cleanup in the Ward 3B, Bay 4 bathroom and have routed it to the Environmental Services team. They will attend to the area within the service window.\n\nIf the situation changes or you have any additional details to add, please don't hesitate to contact the operations desk. We appreciate you letting us know promptly.",
-      "timestamp": "2026-07-12T15:05:09.421013+00:00"
+      "artifact": "Thank you for reaching out. We have logged a cleanup request for the Bay 4 bathroom on Ward 3B and routed it to the Environmental Services team right away. A team member will attend to the area within the standard service window.\n\nIf the situation changes or you need to provide any additional details, please don't hesitate to contact the operations desk and we'll update the request accordingly. We appreciate you flagging this promptly.",
+      "timestamp": "2026-07-12T16:08:11.288044+00:00"
     },
     {
       "step_name": "Set SLA timer",
       "status": "done",
-      "detail": "SLA timer set: 8 h (due 23:05 UTC).",
+      "detail": "SLA timer set: 8 h (due 00:08 UTC).",
       "artifact": null,
-      "timestamp": "2026-07-12T15:05:09.421013+00:00"
+      "timestamp": "2026-07-12T16:08:11.288044+00:00"
     }
   ],
   "final_status": "routed",
-  "created_at": "2026-07-12T15:05:09.421013+00:00",
+  "created_at": "2026-07-12T16:08:11.288044+00:00",
   "mode": "live"
 }

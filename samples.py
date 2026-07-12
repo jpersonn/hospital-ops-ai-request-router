@@ -16,7 +16,7 @@ SAMPLE_REQUESTS = {
         "five hours in the emergency waiting room and nobody updated us once. The "
         "room was not cleaned properly and staff were dismissive when we asked "
         "questions. This was a really disappointing experience and I'd like someone "
-        "to actually follow up with me."
+        "to actually follow up with me. You can reach me on 0412 555 341."
     ),
     "General enquiry": (
         "Hello, could you please tell me what the visiting hours are for the "
