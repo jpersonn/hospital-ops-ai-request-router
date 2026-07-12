@@ -59,7 +59,26 @@ def _sla_deadline(urgency: str) -> str:
 def route_to_team(ctx: WorkflowContext):
     team = ROUTING_TABLE[ctx.classification.request_type.value]
     ctx.shared["team"] = team
-    return ("done", f"Routed to {team}.", None)
+    c = ctx.classification
+    e = c.entities
+    location = e.get("location") or "not specified — see request text"
+    requester = e.get("requester") or "not specified"
+    contact = e.get("contact") or "not specified"
+    summary = " ".join(ctx.raw_text.split())
+    if len(summary) > 220:
+        summary = summary[:220] + "…"
+    work_order = (
+        f"[WORK ORDER → {team}]\n"
+        f"Type: {c.request_type.value}\n"
+        f"Urgency: {c.urgency.value}\n"
+        f"Sub-topic: {c.sub_topic}\n"
+        f"Location: {location}\n"
+        f"Requester: {requester} (contact: {contact})\n"
+        f"SLA: {_sla_deadline(c.urgency.value)}\n"
+        f"---\n"
+        f"{summary}"
+    )
+    return ("done", f"Routed to {team} — work order issued.", work_order)
 
 
 def log_with_priority(ctx: WorkflowContext):
