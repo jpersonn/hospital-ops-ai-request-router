@@ -17,7 +17,7 @@ from classifier import classify
 from config import CONFIDENCE_THRESHOLD, CLASSIFIER_MODEL
 from models import ActionRecord, ProcessedRequest, Urgency
 from samples import SAMPLE_REQUESTS
-from workflow import WorkflowContext, run_branch
+from workflow import WorkflowContext, apply_policy_overrides, run_branch
 import storage
 
 load_dotenv()
@@ -83,10 +83,12 @@ with tab_process:
     if "request_text" not in st.session_state:
         st.session_state.request_text = ""
 
-    cols = st.columns(len(SAMPLE_REQUESTS))
-    for col, (label, text) in zip(cols, SAMPLE_REQUESTS.items()):
-        if col.button(label, use_container_width=True):
-            st.session_state.request_text = text
+    labels = list(SAMPLE_REQUESTS.items())
+    for row_start in range(0, len(labels), 4):
+        cols = st.columns(4)
+        for col, (label, text) in zip(cols, labels[row_start:row_start + 4]):
+            if col.button(label, use_container_width=True):
+                st.session_state.request_text = text
 
     request_text = st.text_area(
         "Request text",
@@ -97,9 +99,16 @@ with tab_process:
 
     process = st.button("Process request", type="primary")
 
-    if process and request_text.strip():
+    if process and len(request_text.strip()) < 20:
+        st.error(
+            "Request is too short to classify meaningfully (under 20 characters). "
+            "Please provide the full request text."
+        )
+    elif process and request_text.strip():
         with st.spinner("Classifying..."):
             classification = classify(request_text, client=CLIENT, use_mock=use_mock)
+
+        override_note = apply_policy_overrides(classification)
 
         st.subheader("2 · Classification")
         c1, c2, c3 = st.columns(3)
@@ -122,6 +131,9 @@ with tab_process:
         below = classification.confidence < CONFIDENCE_THRESHOLD
 
         st.subheader("3 · Remediation")
+
+        if override_note:
+            st.info(f"🛡️ {override_note}")
 
         if below:
             st.warning(
@@ -148,6 +160,10 @@ with tab_process:
             )
             with st.spinner("Running remediation branch..."):
                 actions, final_status = run_branch(ctx)
+            if override_note:
+                actions.insert(0, ActionRecord(
+                    "Policy override", "flagged", override_note,
+                ))
 
         # --- Action summary: one line per step, artifacts in expanders ---
         STATUS_ICON = {"done": "✅", "flagged": "🚩", "paused": "⏸️", "error": "❌"}

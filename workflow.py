@@ -23,7 +23,7 @@ from typing import Callable
 
 import generation
 from config import ROUTING_TABLE, SLA_HOURS
-from models import ActionRecord, Classification, RequestType
+from models import ActionRecord, Classification, RequestType, Urgency
 
 
 @dataclass
@@ -245,6 +245,31 @@ DEFAULT_STATUS: dict[RequestType, str] = {
     RequestType.GENERAL_ENQUIRY: "resolved",
     RequestType.URGENT_SAFETY: "human_review",
 }
+
+
+def apply_policy_overrides(c: Classification) -> str | None:
+    """Deterministic policy rules applied ON TOP of the model's classification.
+
+    The model classifies; policy decides. Rule 1 (currently the only rule):
+    anything the model itself marks Critical gets the safety-escalation
+    branch, regardless of the type label it was given. A critically-urgent
+    'facilities request' (e.g. a biohazard spill phrased as a cleanup ask)
+    must not receive routine routing just because the type label was benign.
+
+    Returns a human-readable note if an override fired, else None. Mutates
+    the classification in place -- the audit trail records both the fact of
+    the override and the original label inside the note.
+    """
+    if (c.urgency == Urgency.CRITICAL
+            and c.request_type != RequestType.URGENT_SAFETY):
+        original = c.request_type.value
+        c.request_type = RequestType.URGENT_SAFETY
+        return (
+            f"Policy override: urgency is Critical, so the safety-escalation "
+            f"branch runs instead of the '{original}' branch. Type label "
+            f"preserved in audit note."
+        )
+    return None
 
 
 def run_branch(ctx: WorkflowContext) -> tuple[list[ActionRecord], str]:
