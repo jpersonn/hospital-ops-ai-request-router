@@ -365,22 +365,22 @@ with tab_dashboard:
             .map(_cell_style(URGENCY_COLOUR_BY_NAME), subset=["urgency"])
             .map(_cell_style(STATUS_COLOUR), subset=["status"])
         )
+        # The table's key includes a nonce that is bumped every time a dialog
+        # opens: the next rerun then mounts a fresh, unselected grid. Without
+        # this, the selection would persist after the dialog closes and
+        # clicking the same row again would not re-fire a selection event.
+        if "audit_table_nonce" not in st.session_state:
+            st.session_state.audit_table_nonce = 0
         event = st.dataframe(
             styled,
             width="stretch",
             hide_index=True,
             on_select="rerun",
             selection_mode="single-row",
-            key="audit_table",
+            key=f"audit_table_{st.session_state.audit_table_nonce}",
         )
 
         selected = event.selection.rows
         if selected:
-            picked = rows[selected[0]]
-            # Only (re)open the dialog when the selection changes; otherwise
-            # closing it would re-trigger on the same rerun selection.
-            if st.session_state.get("last_audit_shown") != picked["request_id"]:
-                st.session_state["last_audit_shown"] = picked["request_id"]
-                show_audit_trail(picked)
-        else:
-            st.session_state["last_audit_shown"] = None
+            st.session_state.audit_table_nonce += 1
+            show_audit_trail(rows[selected[0]])
