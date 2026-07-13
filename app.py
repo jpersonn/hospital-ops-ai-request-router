@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import uuid
 
+import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 
@@ -52,6 +53,60 @@ URGENCY_COLOUR = {
 
 # Shared by the Process tab's action summary and the Dashboard audit trail.
 STATUS_ICON = {"done": "✅", "flagged": "🚩", "paused": "⏸️", "error": "❌"}
+
+# Colour coding for the dashboard table and audit-trail dialog. Urgency
+# reuses the Process tab's palette (keyed by name here, since DB rows are
+# plain strings); type and final status get their own muted palettes.
+URGENCY_COLOUR_BY_NAME = {u.value: c for u, c in URGENCY_COLOUR.items()}
+TYPE_COLOUR = {
+    "Facility / EVS request": "#0E7490",
+    "Patient experience complaint": "#C2410C",
+    "General enquiry": "#2563EB",
+    "Urgent safety escalation": "#A32D2D",
+}
+STATUS_COLOUR = {
+    "resolved": "#1D9E75",
+    "routed": "#2166C4",
+    "escalated": "#8B3FBF",
+    "human_review": "#A32D2D",
+    "needs_review": "#BA7517",
+    "needs_info": "#6B7280",
+}
+
+
+def _chip_html(text: str, colour: str) -> str:
+    return (
+        f"<span style='background:{colour};color:white;padding:2px 10px;"
+        f"border-radius:12px;font-weight:600;font-size:0.85em'>{text}</span>"
+    )
+
+
+@st.dialog("Request audit trail", width="large")
+def show_audit_trail(r: dict):
+    st.markdown(
+        f"`{r['request_id']}` &nbsp; "
+        + _chip_html(r["request_type"], TYPE_COLOUR.get(r["request_type"], "#555"))
+        + " "
+        + _chip_html(r["urgency"], URGENCY_COLOUR_BY_NAME.get(r["urgency"], "#555"))
+        + " "
+        + _chip_html(r["final_status"], STATUS_COLOUR.get(r["final_status"], "#555")),
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        f"Confidence {r['confidence']:.0%} · "
+        f"received {r['created_at'][:19].replace('T', ' ')} UTC"
+    )
+    if r["reasoning"]:
+        st.write(f"**Classifier reasoning:** {r['reasoning']}")
+    st.write("**Raw request:**")
+    st.text(r["raw_text"])
+    st.write("**Actions taken:**")
+    for i, a in enumerate(storage.get_actions_for(r["request_id"]), start=1):
+        icon = STATUS_ICON.get(a["status"], "•")
+        st.markdown(f"{icon} **Step {i} — {a['step_name']}**  \n{a['detail']}")
+        if a["artifact"]:
+            with st.expander(f"View generated output — {a['step_name']}"):
+                st.text(a["artifact"])
 
 # --- Sidebar ----------------------------------------------------------------
 with st.sidebar:
@@ -266,21 +321,49 @@ with tab_dashboard:
         )
         st.write("**Volumes by type:**")
         st.bar_chart(by_type)
-        st.write("**Request log — expand a row to see its full audit trail:**")
-        for r in rows:
-            header = (
-                f"{r['request_id']} — {r['request_type']} · "
-                f"{r['urgency']} · {r['final_status']}"
+        st.write("**Request log — select a row to open its full audit trail:**")
+        df = pd.DataFrame(
+            [
+                {
+                    "id": r["request_id"],
+                    "type": r["request_type"],
+                    "urgency": r["urgency"],
+                    "confidence": f'{r["confidence"]:.0%}',
+                    "status": r["final_status"],
+                    "created": r["created_at"][:19].replace("T", " "),
+                }
+                for r in rows
+            ]
+        )
+
+        def _cell_style(colour_map):
+            return lambda v: (
+                f"background-color:{colour_map[v]};color:white;font-weight:600"
+                if v in colour_map else ""
             )
-            with st.expander(header):
-                if r["reasoning"]:
-                    st.write(f"**Classifier reasoning:** {r['reasoning']}")
-                st.write("**Raw request:**")
-                st.text(r["raw_text"])
-                st.write("**Actions taken:**")
-                for i, a in enumerate(storage.get_actions_for(r["request_id"]), start=1):
-                    icon = STATUS_ICON.get(a["status"], "•")
-                    st.markdown(f"{icon} **Step {i} — {a['step_name']}**  \n{a['detail']}")
-                    if a["artifact"]:
-                        with st.expander(f"View generated output — {a['step_name']}"):
-                            st.text(a["artifact"])
+
+        styled = (
+            df.style
+            .map(_cell_style(TYPE_COLOUR), subset=["type"])
+            .map(_cell_style(URGENCY_COLOUR_BY_NAME), subset=["urgency"])
+            .map(_cell_style(STATUS_COLOUR), subset=["status"])
+        )
+        event = st.dataframe(
+            styled,
+            width="stretch",
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row",
+            key="audit_table",
+        )
+
+        selected = event.selection.rows
+        if selected:
+            picked = rows[selected[0]]
+            # Only (re)open the dialog when the selection changes; otherwise
+            # closing it would re-trigger on the same rerun selection.
+            if st.session_state.get("last_audit_shown") != picked["request_id"]:
+                st.session_state["last_audit_shown"] = picked["request_id"]
+                show_audit_trail(picked)
+        else:
+            st.session_state["last_audit_shown"] = None
