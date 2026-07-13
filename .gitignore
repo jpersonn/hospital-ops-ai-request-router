@@ -19,3 +19,10 @@ venv/
 .DS_Store
 .vscode/
 .idea/
+
+# Claude Code local files (kept on disk, not published)
+.claude/
+CLAUDE.md
+
+# Build/export artifacts
+*.zip
