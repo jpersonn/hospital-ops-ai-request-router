@@ -21,6 +21,7 @@ from samples import SAMPLE_REQUESTS
 from workflow import (
     WorkflowContext,
     apply_policy_overrides,
+    build_info_request_actions,
     check_actionability,
     run_branch,
 )
@@ -256,23 +257,15 @@ with tab_process:
                 ]
                 final_status = "needs_review"
             elif missing:
-                miss_str = ", ".join(missing)
                 st.warning(
                     f"⚠️ Classified as {classification.request_type.value}, but the "
-                    f"request is missing: **{miss_str}**. Diverted to human review — "
-                    "an operator needs to obtain this information before automation "
-                    "can proceed."
+                    f"request is missing: **{', '.join(missing)}**. Instead of "
+                    "running the branch, a reply asking for the missing details "
+                    "was drafted and the case is held open."
                 )
-                actions = [
-                    ActionRecord(
-                        "Actionability check",
-                        "flagged",
-                        f"Classified as {classification.request_type.value} "
-                        f"({classification.urgency.value}), but required details are "
-                        f"missing: {miss_str}. No automated remediation was run — an "
-                        "operator must obtain the missing information first.",
-                    )
-                ]
+                actions = build_info_request_actions(
+                    request_text.strip(), classification, missing
+                )
                 final_status = "needs_info"
             elif below:
                 st.warning(
@@ -362,7 +355,9 @@ with tab_dashboard:
             by_status.get("routed", 0) + by_status.get("escalated", 0),
         )
         st.write("**Volumes by type:**")
-        st.bar_chart(by_type)
+        # Horizontal bars: the four type names are long, so they go on the
+        # y-axis where they render horizontally instead of rotated.
+        st.bar_chart(by_type, horizontal=True)
         st.write("**Request log — select a row to open its full audit trail:**")
         df = pd.DataFrame(
             [

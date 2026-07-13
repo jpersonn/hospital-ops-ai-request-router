@@ -298,7 +298,10 @@ def apply_policy_overrides(c: Classification) -> str | None:
 REQUIRED_ENTITIES: dict[RequestType, list[str]] = {
     RequestType.FACILITY_EVS: ["location"],
     RequestType.PATIENT_COMPLAINT: ["contact"],
-    RequestType.URGENT_SAFETY: ["location"],
+    # Deliberately empty: a Critical report must NEVER be held at an info
+    # gate -- the safety branch pages the duty supervisor and copes with an
+    # unknown location via its own fallback.
+    RequestType.URGENT_SAFETY: [],
     RequestType.GENERAL_ENQUIRY: [],
 }
 
@@ -315,6 +318,36 @@ def check_actionability(c: Classification) -> list[str]:
         if value is None or not str(value).strip():
             missing.append(key)
     return missing
+
+
+def build_info_request_actions(
+    raw_text: str, c: Classification, missing: list[str]
+) -> list[ActionRecord]:
+    """Remediation for an un-actionable request: don't run the branch, but
+    don't dead-end either. The requester gets a drafted reply asking for the
+    missing details, and the case is held open in the needs-info queue.
+    """
+    miss_str = ", ".join(missing)
+    return [
+        ActionRecord(
+            "Actionability check",
+            "flagged",
+            f"Classified as {c.request_type.value} ({c.urgency.value}), but "
+            f"required details are missing: {miss_str}. Branch not run.",
+        ),
+        ActionRecord(
+            "Draft information request",
+            "done",
+            "Reply drafted asking the requester to provide the missing details.",
+            generation.draft_info_request(raw_text, c, missing),
+        ),
+        ActionRecord(
+            "Hold case open",
+            "flagged",
+            "Case held in the needs-info queue until the requester responds "
+            "with the missing details.",
+        ),
+    ]
 
 
 def run_branch(ctx: WorkflowContext) -> tuple[list[ActionRecord], str]:

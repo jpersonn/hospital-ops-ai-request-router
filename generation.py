@@ -124,6 +124,22 @@ def draft_urgent_ack(text: str, c: Classification, client) -> str:
     )
 
 
+def draft_info_request(text: str, c: Classification, missing: list[str]) -> str:
+    """Reply asking the requester for missing required details.
+
+    Deliberately deterministic and identical in mock and live mode: the
+    content is formulaic (name the missing fields, ask for them), and a
+    request we already know is under-specified should not cost a model call.
+    """
+    fields = " and ".join(missing)
+    return (
+        "Thank you for getting in touch — your request has been received "
+        f"and logged. To action it we need one more thing from you: the "
+        f"{fields}. Please reply with those details and we will pick this "
+        "up straight away; your original message stays on file."
+    )
+
+
 # ---------------------------------------------------------------------------
 # Mock generators -- same signatures, template output
 # ---------------------------------------------------------------------------

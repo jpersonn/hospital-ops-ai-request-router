@@ -30,6 +30,7 @@ from samples import SAMPLE_REQUESTS
 from workflow import (
     WorkflowContext,
     apply_policy_overrides,
+    build_info_request_actions,
     check_actionability,
     run_branch,
 )
@@ -58,16 +59,7 @@ def process_one(label: str, text: str, client, use_mock: bool) -> ProcessedReque
         ]
         final_status = "needs_review"
     elif (missing := check_actionability(classification)):
-        actions = [
-            ActionRecord(
-                "Actionability check",
-                "flagged",
-                f"Classified as {classification.request_type.value} "
-                f"({classification.urgency.value}), but required details are "
-                f"missing: {', '.join(missing)}. No automated remediation was "
-                "run — an operator must obtain the missing information first.",
-            )
-        ]
+        actions = build_info_request_actions(text.strip(), classification, missing)
         final_status = "needs_info"
     elif classification.confidence < CONFIDENCE_THRESHOLD:
         actions = [
