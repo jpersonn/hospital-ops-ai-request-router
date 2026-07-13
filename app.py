@@ -152,6 +152,10 @@ with tab_process:
             st.session_state.request_text = ""
 
         labels = list(SAMPLE_REQUESTS.items())
+        st.caption(
+            "Pre-loaded samples exercise each branch and the safety mechanisms "
+            "— click to load, or paste your own below."
+        )
         for row_start in range(0, len(labels), 2):
             cols = st.columns(2)
             for col, (label, text) in zip(cols, labels[row_start:row_start + 2]):
