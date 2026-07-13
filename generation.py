@@ -42,12 +42,25 @@ def _generate(client, system: str, user: str) -> str:
 # ---------------------------------------------------------------------------
 
 def draft_complaint_ack(text: str, c: Classification, client) -> str:
+    # The complaint branch runs with or without contact details; only the
+    # promise in the acknowledgement changes.
+    if str(c.entities.get("contact") or "").strip():
+        followup = (
+            "State that it has been escalated to the Patient Liaison Office "
+            "and that they will be contacted within 2 hours."
+        )
+    else:
+        followup = (
+            "State that it has been escalated to the Patient Liaison Office. "
+            "No contact details were provided, so do NOT promise a callback; "
+            "instead invite them to reply with a phone number or email if "
+            "they would like personal follow-up."
+        )
     return _generate(
         client,
         BASE_STYLE + " This is an acknowledgement of a patient experience "
         "complaint. Be genuinely empathetic without being defensive or "
-        "admitting fault. State that it has been escalated to the Patient "
-        "Liaison Office and that they will be contacted within 2 hours.",
+        "admitting fault. " + followup,
         f"Complaint received:\n\n{text}",
     )
 
@@ -145,11 +158,20 @@ def draft_info_request(text: str, c: Classification, missing: list[str]) -> str:
 # ---------------------------------------------------------------------------
 
 def mock_complaint_ack(text: str, c: Classification) -> str:
+    if str(c.entities.get("contact") or "").strip():
+        return (
+            "Thank you for taking the time to share this with us, and we are sorry "
+            "your experience fell short of what you should expect from us. Your "
+            "complaint has been escalated to our Patient Liaison Office as a "
+            "priority, and a member of the team will contact you within 2 hours. "
+            "[mock draft]"
+        )
     return (
         "Thank you for taking the time to share this with us, and we are sorry "
         "your experience fell short of what you should expect from us. Your "
         "complaint has been escalated to our Patient Liaison Office as a "
-        "priority, and a member of the team will contact you within 2 hours. "
+        "priority. As no contact details were included, please reply with a "
+        "phone number or email if you would like personal follow-up. "
         "[mock draft]"
     )
 

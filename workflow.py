@@ -296,8 +296,12 @@ def apply_policy_overrides(c: Classification) -> str | None:
 # with no location cannot be attended; a complaint with no contact cannot be
 # followed up. Enquiries need nothing -- an info question answers itself.
 REQUIRED_ENTITIES: dict[RequestType, list[str]] = {
+    # Only gate what blocks the branch's CORE action. A facilities job with
+    # no location cannot be attended, so it is gated. A complaint with no
+    # contact can still be escalated and logged -- the acknowledgement just
+    # asks for contact details instead of promising a callback -- so it runs.
     RequestType.FACILITY_EVS: ["location"],
-    RequestType.PATIENT_COMPLAINT: ["contact"],
+    RequestType.PATIENT_COMPLAINT: [],
     # Deliberately empty: a Critical report must NEVER be held at an info
     # gate -- the safety branch pages the duty supervisor and copes with an
     # unknown location via its own fallback.
