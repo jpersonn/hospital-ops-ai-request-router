@@ -48,7 +48,7 @@ on Claude Haiku 4.5; drafted patient-facing replies run on Claude Sonnet 4.6.
 
 ## What it does
 
-Six pre-loaded samples exercise every branch and every safety mechanism:
+7 pre-loaded samples exercise every branch and every safety mechanism:
 
 | Sample | What it demonstrates |
 |---|---|
