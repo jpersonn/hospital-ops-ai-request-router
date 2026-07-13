@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import uuid
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
@@ -171,6 +172,15 @@ with tab_process:
         )
 
         process = st.button("Process request", type="primary")
+        if process:
+            # Processing inserts a new row at the top of the audit table. A
+            # selection left on the old table maps by POSITION, so it would
+            # silently shift onto the new row and pop the audit dialog open.
+            # Bumping the table's key nonce remounts it unselected instead.
+            st.session_state.audit_table_nonce = (
+                st.session_state.get("audit_table_nonce", 0) + 1
+            )
+            st.session_state.last_audit_shown = None
 
     with col_out:
         if process and len(request_text.strip()) < 20:
@@ -355,9 +365,29 @@ with tab_dashboard:
             by_status.get("routed", 0) + by_status.get("escalated", 0),
         )
         st.write("**Volumes by type:**")
-        # Horizontal bars: the four type names are long, so they go on the
-        # y-axis where they render horizontally instead of rotated.
-        st.bar_chart(by_type, horizontal=True)
+        # Altair instead of st.bar_chart for one reason: labelLimit=0 stops
+        # the long type names being truncated. Horizontal bars keep labels
+        # fully horizontal, and colours match the type chips.
+        chart_df = pd.DataFrame(
+            {"type": list(by_type.keys()), "count": list(by_type.values())}
+        )
+        chart = (
+            alt.Chart(chart_df)
+            .mark_bar()
+            .encode(
+                x=alt.X("count:Q", title=None,
+                        axis=alt.Axis(format="d", tickMinStep=1)),
+                y=alt.Y("type:N", title=None, sort="-x",
+                        axis=alt.Axis(labelLimit=0)),
+                color=alt.Color(
+                    "type:N",
+                    scale=alt.Scale(domain=list(TYPE_COLOUR.keys()),
+                                    range=list(TYPE_COLOUR.values())),
+                    legend=None,
+                ),
+            )
+        )
+        st.altair_chart(chart, width="stretch")
         st.write("**Request log — select a row to open its full audit trail:**")
         df = pd.DataFrame(
             [
@@ -391,11 +421,11 @@ with tab_dashboard:
             hide_index=True,
             on_select="rerun",
             selection_mode="single-row",
-            key="audit_table",
+            key=f"audit_table_{st.session_state.get('audit_table_nonce', 0)}",
         )
 
         selected = event.selection.rows
-        if selected:
+        if selected and selected[0] < len(rows):
             picked = rows[selected[0]]
             # Only (re)open the dialog when the selection changes; otherwise
             # closing it would re-trigger on the same rerun selection.
