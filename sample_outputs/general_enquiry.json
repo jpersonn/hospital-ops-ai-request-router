@@ -5,8 +5,8 @@
     "request_type": "General enquiry",
     "urgency": "Low",
     "confidence": 0.95,
-    "sub_topic": "Visiting hours and parking information",
-    "reasoning": "This is a straightforward informational request about hospital visiting hours and parking facilities, not a complaint or operational issue requiring immediate action.",
+    "sub_topic": "visiting hours and parking information",
+    "reasoning": "This is a straightforward informational request about hospital visiting hours and parking facilities with no time sensitivity or safety concern.",
     "entities": {},
     "out_of_scope": false
   },
@@ -16,31 +16,31 @@
       "status": "done",
       "detail": "Extracted details \u2014 none extracted.",
       "artifact": null,
-      "timestamp": "2026-07-12T16:08:25.842607+00:00"
+      "timestamp": "2026-07-13T07:37:39.685380+00:00"
     },
     {
       "step_name": "Draft KB-grounded reply",
       "status": "done",
       "detail": "Reply drafted, fully grounded in the operations knowledge base.",
-      "artifact": "Great news \u2014 both answers are in our visitor guide!\n\n**Maternity Ward Visiting Hours**\nVisitors are welcome 10:00am \u2013 1:00pm and 4:00pm \u2013 8:00pm daily. If you are a partner or support person of a birthing patient, you may visit at any time.\n\n**On-Site Parking**\nYes, we have a paid multi-storey car park, accessed via Hospital Drive. Rates are $4/hour with a daily maximum of $18. Accessible bays are available on every level near the lifts. There is also a free 15-minute pick-up/drop-off zone outside the main entrance.\n\nWe hope your visit goes smoothly \u2014 please don't hesitate to get in touch if you have any other questions!",
-      "timestamp": "2026-07-12T16:08:30.197211+00:00"
+      "artifact": "Great news \u2014 here's what you need to know for your weekend visit!\n\n**Maternity Ward Visiting Hours:**\n- 10:00am \u2013 1:00pm and 4:00pm \u2013 8:00pm daily.\n- Partners or support people of birthing patients are welcome to visit at any time.\n- Please note that children under 12 must be accompanied by an adult at all times.\n\n**On-Site Parking:**\n- There is a paid multi-storey car park on site, accessed via Hospital Drive.\n- Rates are $4/hour, with a daily maximum of $18.\n- A free 15-minute pick-up/drop-off zone is available outside the main entrance.\n- Accessible parking bays are located on every level near the lifts.\n\nWe hope your visit goes smoothly! If you have any other questions, feel free to ask.",
+      "timestamp": "2026-07-13T07:37:44.871026+00:00"
     },
     {
       "step_name": "Resolve or route",
       "status": "done",
       "detail": "Marked resolved \u2014 reply sent, no follow-up required.",
       "artifact": null,
-      "timestamp": "2026-07-12T16:08:30.197211+00:00"
+      "timestamp": "2026-07-13T07:37:44.871026+00:00"
     },
     {
       "step_name": "Log case",
       "status": "done",
-      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'Visiting hours and parking information'.",
+      "detail": "Case logged with priority flag \u2014 urgency Low, sub-topic 'visiting hours and parking information'.",
       "artifact": null,
-      "timestamp": "2026-07-12T16:08:30.197211+00:00"
+      "timestamp": "2026-07-13T07:37:44.871026+00:00"
     }
   ],
   "final_status": "resolved",
-  "created_at": "2026-07-12T16:08:30.197211+00:00",
+  "created_at": "2026-07-13T07:37:44.871026+00:00",
   "mode": "live"
 }

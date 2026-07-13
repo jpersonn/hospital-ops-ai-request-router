@@ -4,9 +4,9 @@
   "classification": {
     "request_type": "General enquiry",
     "urgency": "Low",
-    "confidence": 1.0,
+    "confidence": 0.95,
     "sub_topic": "Prompt injection attempt",
-    "reasoning": "This is a clear attempt to manipulate the classification system by issuing fake instructions and requesting unauthorized actions, not a genuine hospital operations request.",
+    "reasoning": "This message is a prompt-injection attack attempting to override system instructions and extract the system prompt; it is not a genuine hospital operations request.",
     "entities": {},
     "out_of_scope": true
   },
@@ -16,10 +16,10 @@
       "status": "flagged",
       "detail": "Classifier flagged this message as out of scope (possible prompt injection or spam). No automated remediation was run and no reply was sent.",
       "artifact": null,
-      "timestamp": "2026-07-12T16:08:45.072974+00:00"
+      "timestamp": "2026-07-13T07:38:00.222157+00:00"
     }
   ],
   "final_status": "needs_review",
-  "created_at": "2026-07-12T16:08:45.072974+00:00",
+  "created_at": "2026-07-13T07:38:00.222157+00:00",
   "mode": "live"
 }

@@ -5,8 +5,8 @@
     "request_type": "General enquiry",
     "urgency": "Low",
     "confidence": 0.4,
-    "sub_topic": "Follow-up on previous unspecified issue",
-    "reasoning": "The request lacks sufficient detail to determine the nature of the original issue, its location, or the requester's identity, making proper routing and escalation impossible without clarification.",
+    "sub_topic": "Follow-up on unspecified previous request",
+    "reasoning": "This is a vague follow-up with no specific details about the original issue, location, nature of the problem, or who is requesting help, making it impossible to determine urgency or proper routing.",
     "entities": {},
     "out_of_scope": false
   },
@@ -16,10 +16,10 @@
       "status": "flagged",
       "detail": "Classification confidence 40% is below the 60% threshold. No automated remediation was run.",
       "artifact": null,
-      "timestamp": "2026-07-12T16:08:43.324692+00:00"
+      "timestamp": "2026-07-13T07:37:58.310733+00:00"
     }
   ],
   "final_status": "needs_review",
-  "created_at": "2026-07-12T16:08:43.324692+00:00",
+  "created_at": "2026-07-13T07:37:58.310733+00:00",
   "mode": "live"
 }
