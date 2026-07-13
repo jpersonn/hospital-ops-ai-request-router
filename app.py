@@ -213,6 +213,27 @@ with tab_process:
             below = classification.confidence < CONFIDENCE_THRESHOLD
             missing = check_actionability(classification)
 
+            # Gate trace: the safety pipeline is visible on EVERY request, not
+            # just when a gate fires. Gates run in precedence order, so gates
+            # after a failed one are shown as skipped, mirroring the actual flow.
+            gate_parts = []
+            if classification.out_of_scope:
+                gate_parts += ["🛑 quarantined (not a genuine request)",
+                               "○ actionability (skipped)", "○ confidence (skipped)"]
+            elif missing:
+                gate_parts += ["✅ legitimate",
+                               f"⚠️ missing: {', '.join(missing)}",
+                               "○ confidence (skipped)"]
+            elif below:
+                gate_parts += ["✅ legitimate", "✅ actionable",
+                               f"⚠️ confidence {classification.confidence:.0%} "
+                               f"< {CONFIDENCE_THRESHOLD:.0%}"]
+            else:
+                gate_parts += ["✅ legitimate", "✅ actionable",
+                               f"✅ confidence {classification.confidence:.0%} "
+                               f"≥ {CONFIDENCE_THRESHOLD:.0%}"]
+            st.markdown("🛡️ **Gates:** " + " · ".join(gate_parts))
+
             st.subheader("3 · Remediation")
 
             if override_note:
@@ -291,7 +312,11 @@ with tab_process:
                     with st.expander(f"View generated output — {a.step_name}"):
                         st.text(a.artifact)
 
-            st.markdown(f"**Final status:** `{final_status}`")
+            st.markdown(
+                "**Final status:** "
+                + _chip_html(final_status, STATUS_COLOUR.get(final_status, "#555")),
+                unsafe_allow_html=True,
+            )
 
             # Persist the full record: classification + every action
             pr = ProcessedRequest(
